@@ -1,12 +1,36 @@
 import sqlite3
 
 class DatabaseManager:
-    
+    DATABASE_NAME = "weather_data.db"
+
     def __init__(self):
         pass
 
+    def __get_connection(self):
+        return sqlite3.connect(DatabaseManager.DATABASE_NAME)
+
+    def execute_query(self, query_string, query_parameters):
+        conn = self.__get_connection()
+        cursor = conn.cursor()
+
+        response = {"success":None, "msg":None}        
+        try:
+            cursor.execute(query_string, query_parameters)
+            conn.commit()
+        
+            response["success"] = True
+            response["msg"] = "Success"
+        except sqlite3.OperationalError as err:
+            response["success"] = False
+            response["msg"] = str(err)
+        finally:
+            conn.close()
+        
+        return response
+
+    ## Initialization data for application
     def create_tables(self):
-        conn = sqlite3.connect("weather_data.db")
+        conn = self.__get_connection()
         cursor = conn.cursor()
 
         cursor.execute('''CREATE TABLE IF NOT EXISTS Sensors
@@ -18,7 +42,7 @@ class DatabaseManager:
         conn.close()
 
     def create_mock_data(self):
-        conn = sqlite3.connect("weather_data.db")
+        conn = self.__get_connection()
         cursor = conn.cursor()
 
         cursor.execute('''INSERT INTO Sensors (uuid, country, city)
