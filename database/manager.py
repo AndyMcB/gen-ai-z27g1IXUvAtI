@@ -9,24 +9,25 @@ class DatabaseManager:
     def __get_connection(self):
         return sqlite3.connect(DatabaseManager.DATABASE_NAME)
 
-    def execute_query(self, query_string, query_parameters):
+    def execute_query(self, query_string, query_parameters=[]):
         conn = self.__get_connection()
         cursor = conn.cursor()
 
-        response = {"success":None, "msg":None}        
+        res = {"success":None, "msg":None, "data":None}        
         try:
             cursor.execute(query_string, query_parameters)
             conn.commit()
         
-            response["success"] = True
-            response["msg"] = "Success"
+            res["success"] = True
+            res["msg"] = "Success"
+            res["data"]  = cursor.fetchall()
         except sqlite3.OperationalError as err:
-            response["success"] = False
-            response["msg"] = str(err)
+            res["success"] = False
+            res["msg"] = str(err)
         finally:
             conn.close()
         
-        return response
+        return res
 
     ## Initialization data for application
     def create_tables(self):
@@ -36,7 +37,7 @@ class DatabaseManager:
         cursor.execute('''CREATE TABLE IF NOT EXISTS Sensors
             (id INTEGER PRIMARY KEY AUTOINCREMENT, uuid TEXT NOT NULL UNIQUE, country TEXT, city TEXT, 
             created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP)''')
-            
+
         cursor.execute('''CREATE TABLE IF NOT EXISTS SensorData
             (id INTEGER PRIMARY KEY AUTOINCREMENT, sensor_uuid TEXT NOT NULL, temperature INT, humidity INT, wind_speed INT, 
             created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP)''')
