@@ -34,9 +34,12 @@ class DatabaseManager:
         cursor = conn.cursor()
 
         cursor.execute('''CREATE TABLE IF NOT EXISTS Sensors
-            (id INTEGER PRIMARY KEY AUTOINCREMENT, uuid TEXT NOT NULL, country TEXT, city TEXT)''')
+            (id INTEGER PRIMARY KEY AUTOINCREMENT, uuid TEXT NOT NULL UNIQUE, country TEXT, city TEXT, 
+            created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP)''')
+            
         cursor.execute('''CREATE TABLE IF NOT EXISTS SensorData
-            (id INTEGER PRIMARY KEY AUTOINCREMENT, sensor_uuid TEXT NOT NULL, temperature INT, humidity INT, wind_speed INT)''')
+            (id INTEGER PRIMARY KEY AUTOINCREMENT, sensor_uuid TEXT NOT NULL, temperature INT, humidity INT, wind_speed INT, 
+            created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP)''')
         
         conn.commit()
         conn.close()
