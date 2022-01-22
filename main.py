@@ -11,7 +11,7 @@ def index():
         hello = "World"
     )
 
-@app.route("/sensor/create", methods=["POST"])
+@app.route("/sensors/create", methods=["POST"])
 def create_sensor():
     request_data = request.get_json()
     try:
@@ -25,3 +25,28 @@ def create_sensor():
             return jsonify(code=500, msg=result["msg"])
     except KeyError:
         return jsonify(code = 400, msg = "Attribute key missing")
+
+@app.route("/sensors/all")
+def get_all_sensors():
+    sensors = Sensor.get_all_sensors()
+    resp = {}
+    for sensor in sensors:
+        resp[sensor.uuid] = {
+            "uuid": sensor.uuid,
+            "country": sensor.country,
+            "city": sensor.city
+        }
+    return jsonify(resp)
+
+@app.route("/sensors/<uuid>")
+def get_sensor_by_uuid(uuid):
+    sensor = Sensor.get_sensor_by_uuid(uuid)
+    
+    if sensor:
+        return jsonify({ 
+            "uuid": sensor.uuid,
+            "country": sensor.country,
+            "city": sensor.city   
+        })
+    else:
+        return jsonify({})
