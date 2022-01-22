@@ -1,3 +1,5 @@
+from database.manager import DatabaseManager
+
 class Sensor:
     uuid = None
     country = None
@@ -8,6 +10,12 @@ class Sensor:
         self.country = country
         self.city = city
 
+    def save(self):
+        db_manager = DatabaseManager()
+        query_string = "INSERT INTO Sensors (uuid, country, city) values(?, ?, ?)"
+        return db_manager.execute_query(query_string, [self.uuid, self.country, self.city])
+
+        
     
 
 
