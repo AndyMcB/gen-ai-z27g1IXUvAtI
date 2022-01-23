@@ -1,6 +1,7 @@
 from flask import Flask, jsonify, request
 from models.sensor import Sensor
 from models.sensor_data import SensorData
+from services.get_metrics_for_sensors import GetMetricsForSensors
 
 app = Flask(__name__)
 
@@ -9,6 +10,15 @@ def index():
     return jsonify(
         hello = "World"
     )
+
+@app.route("/get_metrics/")
+def get_average_metrics_for_sensors():
+    try:
+        cal = GetMetricsForSensors(request.args["sensors"], request.args["metrics"], request.args["start_day"], request.args["end_day"])
+        return jsonify(cal.calculate())
+    except KeyError:
+        return jsonify(code = 400, msg = "Attribute key missing")
+
 
 ### Sensor Data Endpoints 
 
