@@ -1,4 +1,5 @@
 from flask import Flask, jsonify, request
+from itsdangerous import json
 from models.sensor import Sensor
 from models.sensor_data import SensorData
 from services.get_metrics_for_sensors import GetMetricsForSensors
@@ -28,13 +29,14 @@ def create_sensor_data():
     try:
         sensor_data = SensorData(request_data["sensor_uuid"], request_data["temp"], request_data["humidity"], request_data["wind_speed"])
         result = sensor_data.save()
- 
-        if result["success"]:
-            return jsonify(code=200, msg=result["msg"])
+        if result:
+            return jsonify(code=200, msg="Success")
         else:
-            return jsonify(code=500, msg=result["msg"])
+            return jsonify(code=500, msg="Save failed")
     except KeyError:
         return jsonify(code = 400, msg = "Attribute key missing")
+    except ValueError: 
+        return jsonify(code = 500, msg = "Sensor UUID does not exist")
 
 @app.route("/sensor_data/all")
 def get_all_sensor_data():
@@ -78,14 +80,14 @@ def create_sensor():
     try:
         sensor = Sensor(request_data["uuid"], request_data["country"], request_data["city"])
         result = sensor.save()
-        print(result)
- 
-        if result["success"]:
-            return jsonify(code=200, msg=result["msg"])
+        if result:
+            return jsonify(code=200, msg="Success")
         else:
-            return jsonify(code=500, msg=result["msg"])
+            return jsonify(code=500, msg="Save failed")
     except KeyError:
         return jsonify(code = 400, msg = "Attribute key missing")
+    except ValueError: 
+        return jsonify(code = 500, msg = "UUID already exists")
 
 @app.route("/sensors/all")
 def get_all_sensors():
